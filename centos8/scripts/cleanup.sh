@@ -8,9 +8,12 @@ rm -f /usr/bin/pip
 pip3 uninstall pip-autoremove -y
 
 # Zero out the rest of the free space using dd, then delete the written file.
-echo "Writing zeroes to free space (this could take a while)."
-dd if=/dev/zero of=/EMPTY bs=1M
-rm -f /EMPTY
+#echo "Writing zeroes to free space (this could take a while)."
+#dd if=/dev/zero of=/EMPTY bs=1M
+#rm -f /EMPTY
+
+# Trim filesystems to free space.
+fstrim -av
 
 # Add `sync` so Packer doesn't quit too early, before the large file is deleted.
 sync
