@@ -1,5 +1,7 @@
 */packer_cache/*
+*/output-qemu/*
 */output-virtualbox-iso/*
 *.box
 iso/*
 .vagrant/*
+*/.vagrant/*
