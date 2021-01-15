@@ -1,6 +1,8 @@
 {
   "variables": {
-    "version": ""
+    "version": "",
+    "version_description": "",
+    "headless": "true"
   },
   "provisioners": [
     {
@@ -26,7 +28,9 @@
   ],
   "builders": [
     {
-      "type": "virtualbox-iso",
+      "type": "qemu",
+      "format": "qcow2",
+      "accelerator": "kvm",
       "boot_command": [
         "<esc><wait>",
         "<esc><wait>",
@@ -48,18 +52,21 @@
         " netcfg/get_hostname=vagrant<wait>",
         " grub-installer/bootdev=/dev/sda<wait>",
         " noapic<wait>",
+        " net.ifnames=0<wait>",
         " preseed/url=http://{{ .HTTPIP }}:{{ .HTTPPort }}/preseed.cfg<wait>",
         " -- <wait>",
         "<enter><wait>"
       ],
       "boot_wait": "10s",
-      "disk_size": 81920,
-      "guest_os_type": "Ubuntu_64",
-      "headless": true,
+      "disk_size": "80G",
+      "disk_interface": "virtio-scsi",
+      "disk_discard": "unmap",
+      "disk_detect_zeroes": "unmap",
+      "headless": "{{user `headless`}}",
       "http_directory": "http",
       "iso_urls": [
         "ubuntu-18.04.5-server-amd64.iso",
-        "http://cdimage.ubuntu.com/ubuntu/releases/bionic/release/ubuntu-18.04.5-server-amd64.iso"
+        "http://ftp-stud.hs-esslingen.de/Mirrors/cdimage.ubuntu.com/releases/bionic/release/ubuntu-18.04.5-server-amd64.iso"
       ],
       "iso_checksum": "sha256:8c5fc24894394035402f66f3824beb7234b757dd2b5531379cb310cedfdf0996",
       "ssh_username": "vagrant",
@@ -67,23 +74,9 @@
       "ssh_port": 22,
       "ssh_wait_timeout": "1800s",
       "shutdown_command": "echo 'vagrant'|sudo -S shutdown -P now",
-      "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
-      "virtualbox_version_file": ".vbox_version",
       "vm_name": "packer-ubuntu-18.04-amd64",
-      "vboxmanage": [
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--memory",
-          "1024"
-        ],
-        [
-          "modifyvm",
-          "{{.Name}}",
-          "--cpus",
-          "1"
-        ]
-      ]
+      "memory": 1024,
+      "cpus": 2
     }
   ],
   "post-processors": [
@@ -91,11 +84,6 @@
       {
         "output": "builds/{{.Provider}}-ubuntu1804.box",
         "type": "vagrant"
-      },
-      {
-        "type": "vagrant-cloud",
-        "box_tag": "geerlingguy/ubuntu1804",
-        "version": "{{user `version`}}"
       }
     ]
   ]
